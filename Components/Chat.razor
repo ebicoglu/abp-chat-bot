@@ -1,0 +1,92 @@
+﻿@using AzureOpenAiChatClient.Data
+@using AzureOpenAiChatClient.Services
+@inject IJSRuntime JsRuntime
+@inject ChatService ChatService
+
+
+<h2 class="top-row pt-4 text-center">
+    ABP Chatbot 🤖 Ask anything about ABP
+</h2>
+
+
+<div id="scrollbox">
+    @foreach (var item in _messages)
+    {
+        if (item.IsRequest)
+        {
+            <div class="sent p-2 m-0 position-relative d-flex justify-content-end">
+                <p class="">@item.Body</p>
+            </div>
+        }
+        else
+        {
+            <div class="received p-2 m-0 position-relative d-flex justify-content-start">
+                <p class="">@item.Body</p>
+            </div>
+        }
+    }
+</div>
+
+ 
+<hr />
+
+<div class="justify-content-md-center">
+    <EditForm Model="_chatInput" OnValidSubmit="SubmitChat">
+        <div class="col-md-auto">
+            <textarea id="chattextarea"
+                      style="width: 100%; height: 100px;"
+                      @bind="@_chatInput.Text"
+                      @oninput="@((ChangeEventArgs e) => updateTextArea(e))" />
+        </div>
+
+        <div class="col">
+            <button class="btn btn-secondary" @onclick="@ClearChat">Reset</button>
+
+            <input type="submit" class="btn btn-primary" value="Send ▶️" style="background-color: #00a6ed; float:right" />
+        </div>
+    </EditForm>
+</div>
+
+
+@code {
+
+    private ChatInput _chatInput = new();
+    private List<Message> _messages = new();
+
+    private async Task ClearChat()
+    {
+        _messages = new List<Message>();
+    }
+
+    private async Task SubmitChat()
+    {
+        var messageToSend = new Message(_chatInput.Text, true);
+        _messages.Add(messageToSend);
+        await JsRuntime.InvokeAsync<string>("UpdateScroll", "scrollbox");
+
+        var response = await ChatService.GetResponse(_messages);
+        _messages.Add(response);
+        await JsRuntime.InvokeAsync<string>("UpdateScroll", "scrollbox");
+
+        _chatInput.Text = "";
+    }
+
+    private void updateTextArea(ChangeEventArgs e)
+    {
+        _chatInput.Text = e.Value!.ToString()!;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeAsync<string>("addSubmitOnEnter", "chattextarea");
+        }
+    }
+
+    public class ChatInput
+    {
+        public string Text { get; set; } = string.Empty;
+    }
+
+}
