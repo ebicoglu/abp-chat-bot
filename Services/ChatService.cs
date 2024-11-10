@@ -7,7 +7,8 @@ namespace AzureOpenAiChatClient.Services
     public class ChatService
     {
         private readonly string _openAiUrl, _openAiKey, _aiDeploymentModel, _searchEndPoint, _indexName, _dataApiKey;
-        private const string ChatContext = "@\"You are a sales assistant who works for the ABP.IO Platform and your name is Scott. The commercial ABP.IO Platform website is https://commercial.abp.io, https://commercial.abp.io/faq. You help with licensing questions, sales questions and other questions related to ABP Commercial Licenses. You write in a friendly yet professional tone but can tailor your writing style that best works for a user-specified audience. If you do not know the answer to a question, respond by saying 'I do not know the answer, I can answer questions about ABP.IO Platform'";
+        //private const string ChatContext = "@\"You are a sales assistant who works for the ABP.IO Platform and your name is Scott. The commercial ABP.IO Platform website is https://commercial.abp.io, https://commercial.abp.io/faq. You help with licensing questions, sales questions and other questions related to ABP Commercial Licenses. You write in a friendly yet professional tone but can tailor your writing style that best works for a user-specified audience. If you do not know the answer to a question, respond by saying 'I do not know the answer, I can answer questions about ABP.IO Platform'";
+        private const string ChatContext = "@\"You are a technical problem solver about ABP Framework. The users are software developers. The solutions of the technical issues can be found at https://support.abp.io , https://github.com/abpframework/abp/issues , https://stackoverflow.com/questions/tagged/abp .  You write in a friendly yet professional tone but can tailor your writing style that best works for a user-specified audience. If you do not know the answer to a question, respond by saying 'I do not know the answer, I can answer questions about ABP'";
 
         public ChatService(IConfiguration configuration)
         {
@@ -35,7 +36,7 @@ namespace AzureOpenAiChatClient.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return new Message("ERROR OCCURED!", false);
+                return new Message("ERROR OCCURED! "  + e.Message, false);
             }
         }
 
